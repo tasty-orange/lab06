@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.sp
 import ch.heigvd.iict.and.rest.R
 import ch.heigvd.iict.and.rest.models.Contact
 import ch.heigvd.iict.and.rest.models.PhoneType
+import ch.heigvd.iict.and.rest.models.SyncState
 import ch.heigvd.iict.and.rest.ui.theme.MyComposeApplicationTheme
 
 @Composable
@@ -48,38 +49,50 @@ fun ScreenContactList(contacts : List<Contact>, onContactSelected : (Contact) ->
 }
 
 @Composable
-fun ContactItemView(contact: Contact, onClick : (Contact) -> Unit) {
-    Row(modifier = Modifier
-        .fillMaxWidth()
-        .height(56.dp)
-        .padding(2.dp)
-        .clickable {
-            onClick(contact)
-        },
+fun ContactItemView(contact: Contact, onClick: (Contact) -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(56.dp)
+            .padding(2.dp)
+            .clickable {
+                onClick(contact)
+            },
         horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically) {
-        Image(painter = painterResource(id = R.drawable.contact),
-            contentDescription = stringResource(id = R.string.screen_list_contacticon_ctndesc))
-        Column(modifier = Modifier.weight(1f).padding(horizontal = 10.dp, vertical = 2.dp),
-            horizontalAlignment = Alignment.Start) {
-            Text(text = "${if(contact.firstname == null) "" else contact.firstname} ${contact.name}".trim())
-            Text(text = "${contact.phoneNumber}")
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.contact),
+            contentDescription = stringResource(id = R.string.screen_list_contacticon_ctndesc)
+        )
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(horizontal = 10.dp, vertical = 2.dp),
+            horizontalAlignment = Alignment.Start
+        ) {
+            Text(text = "${contact.firstname ?: ""} ${contact.name}".trim())
+            Text(text = "${contact.phoneNumber ?: ""}")
         }
-        Image(painter = painterResource(id = when(contact.type){
-            PhoneType.MOBILE -> R.drawable.cellphone
-            PhoneType.FAX -> R.drawable.fax
-            PhoneType.HOME -> R.drawable.phone
-            PhoneType.OFFICE -> R.drawable.office
-            else -> R.drawable.office
-        }),
-            contentDescription = stringResource(id = R.string.screen_list_contacttype_ctndesc))
+        Image(
+            painter = painterResource(
+                id = when (contact.type) {
+                    PhoneType.MOBILE -> R.drawable.cellphone
+                    PhoneType.FAX -> R.drawable.fax
+                    PhoneType.HOME -> R.drawable.phone
+                    PhoneType.OFFICE -> R.drawable.office
+                    null -> R.drawable.office
+                }
+            ),
+            contentDescription = stringResource(id = R.string.screen_list_contacttype_ctndesc)
+        )
     }
 }
 
 val contactsDemo = listOf(
-    Contact(null, "Dupont", "Roger", null, null, "", "1400", "Yverdon", PhoneType.HOME, "+41 21 944 23 55"),
-    Contact(null, "Dupond", "Tatiana", null, null, "", "1000", "Lausanne", PhoneType.OFFICE, "+41 24 763 34 12"),
-    Contact(null, "Toto", "Tata", null, null, "", "1400", "Yverdon", PhoneType.MOBILE, "+41 21 456 25 36")
+    Contact(null, null, "Dupont", "Roger", null, null, "", "1400", "Yverdon", PhoneType.HOME, "+41 21 944 23 55", SyncState.SYNCED),
+    Contact(null, null, "Dupond", "Tatiana", null, null, "", "1000", "Lausanne", PhoneType.OFFICE, "+41 24 763 34 12", SyncState.SYNCED),
+    Contact(null, null, "Toto", "Tata", null, null, "", "1400", "Yverdon", PhoneType.MOBILE, "+41 21 456 25 36", SyncState.SYNCED)
 )
 
 @Preview(showBackground = true)
