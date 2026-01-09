@@ -6,6 +6,7 @@ import java.util.*
 
 @Entity
 data class Contact(@PrimaryKey(autoGenerate = true) var id: Long? = null,
+              var remoteId: Long? = null,  // ID du contact sur le serveur
               var name: String,
               var firstname: String?,
               var birthday : Calendar?,
@@ -14,4 +15,6 @@ data class Contact(@PrimaryKey(autoGenerate = true) var id: Long? = null,
               var zip: String?,
               var city: String?,
               var type: PhoneType?,
-              var phoneNumber: String?)
+              var phoneNumber: String?,
+              var dirty: Boolean = false,  // Indique si modifié localement
+              var deleted: Boolean = false) // Indique si supprimé localement
