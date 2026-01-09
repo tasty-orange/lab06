@@ -16,5 +16,4 @@ data class Contact(@PrimaryKey(autoGenerate = true) var id: Long? = null,
               var city: String?,
               var type: PhoneType?,
               var phoneNumber: String?,
-              var dirty: Boolean = false,  // Indique si modifié localement
-              var deleted: Boolean = false) // Indique si supprimé localement
+              var syncState: SyncState = SyncState.SYNCED  ) // État de synchronisation

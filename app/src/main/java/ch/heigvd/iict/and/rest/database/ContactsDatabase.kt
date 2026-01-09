@@ -7,14 +7,15 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
 import ch.heigvd.iict.and.rest.database.converters.CalendarConverter
+import ch.heigvd.iict.and.rest.database.converters.SyncStateConverter
 import ch.heigvd.iict.and.rest.models.Contact
 import ch.heigvd.iict.and.rest.models.PhoneType
 import java.util.Calendar
 import java.util.GregorianCalendar
 import kotlin.concurrent.thread
 
-@Database(entities = [Contact::class], version = 1, exportSchema = true)
-@TypeConverters(CalendarConverter::class)
+@Database(entities = [Contact::class], version = 2, exportSchema = true)
+@TypeConverters(CalendarConverter::class, SyncStateConverter::class)
 abstract class ContactsDatabase : RoomDatabase() {
 
     abstract fun contactsDao() : ContactsDao
@@ -24,16 +25,18 @@ abstract class ContactsDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE : ContactsDatabase? = null
 
-        fun getDatabase(context: Context) : ContactsDatabase {
-
+        fun getDatabase(context: Context): ContactsDatabase {
             return INSTANCE ?: synchronized(this) {
-                val _instance = Room.databaseBuilder(context.applicationContext,
-                ContactsDatabase::class.java, "contacts.db")
-                    .fallbackToDestructiveMigration(true)
+                val instance = Room.databaseBuilder(
+                    context.applicationContext,
+                    ContactsDatabase::class.java,
+                    "contacts.db"
+                )
+                    .fallbackToDestructiveMigration()  // ATTENTION : efface les données en cas de changement
                     .build()
 
-                INSTANCE = _instance
-                _instance
+                INSTANCE = instance
+                instance
             }
         }
     }
