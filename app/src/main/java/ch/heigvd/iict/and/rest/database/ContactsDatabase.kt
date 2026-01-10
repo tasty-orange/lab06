@@ -32,7 +32,7 @@ abstract class ContactsDatabase : RoomDatabase() {
                     ContactsDatabase::class.java,
                     "contacts.db"
                 )
-                    .fallbackToDestructiveMigration()  // ATTENTION : efface les données en cas de changement
+                    .fallbackToDestructiveMigration()
                     .build()
 
                 INSTANCE = instance

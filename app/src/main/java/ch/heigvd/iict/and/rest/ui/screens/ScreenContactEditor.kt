@@ -16,6 +16,18 @@ import ch.heigvd.iict.and.rest.R
 import ch.heigvd.iict.and.rest.models.Contact
 import ch.heigvd.iict.and.rest.models.PhoneType
 
+/**
+ * Écran Compose pour créer ou éditer un contact
+ *
+ * @author Piemontesi Gwendal
+ * @author Trueb Guillaume
+ * @author Kunzli Christophe
+ *
+ * @param contact Contact? - Contact à éditer (null pour création)
+ * @param onSave (Contact) -> Unit - Callback appelé lors de la sauvegarde
+ * @param onDelete (Contact) -> Unit - Callback appelé lors de la suppression
+ * @param onCancel () -> Unit - Callback appelé lors de l'annulation
+ */
 @Composable
 fun ScreenContactEditor(
     contact: Contact?,
@@ -23,7 +35,6 @@ fun ScreenContactEditor(
     onDelete: (Contact) -> Unit,
     onCancel: () -> Unit
 ) {
-    // États pour les champs du formulaire
     var name by remember { mutableStateOf(contact?.name ?: "") }
     var firstname by remember { mutableStateOf(contact?.firstname ?: "") }
     var email by remember { mutableStateOf(contact?.email ?: "") }
@@ -41,7 +52,7 @@ fun ScreenContactEditor(
             .padding(16.dp)
             .verticalScroll(rememberScrollState())
     ) {
-        // Titre
+        // Titre de l'écran
         Text(
             text = if (isNewContact)
                 stringResource(R.string.screen_detail_title_new)
@@ -63,7 +74,7 @@ fun ScreenContactEditor(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Champ Firstname
+        // Champ Firstname (optionnel)
         OutlinedTextField(
             value = firstname,
             onValueChange = { firstname = it },
@@ -74,7 +85,7 @@ fun ScreenContactEditor(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Champ Email
+        // Champ Email (optionnel, clavier email)
         OutlinedTextField(
             value = email,
             onValueChange = { email = it },
@@ -104,7 +115,7 @@ fun ScreenContactEditor(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Champ Address
+        // Champ Address (optionnel)
         OutlinedTextField(
             value = address,
             onValueChange = { address = it },
@@ -115,7 +126,7 @@ fun ScreenContactEditor(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Champ Zip
+        // Champ Zip (optionnel, clavier numérique)
         OutlinedTextField(
             value = zip,
             onValueChange = { zip = it },
@@ -127,7 +138,7 @@ fun ScreenContactEditor(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Champ City
+        // Champ City (optionnel)
         OutlinedTextField(
             value = city,
             onValueChange = { city = it },
@@ -138,7 +149,7 @@ fun ScreenContactEditor(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Sélection du type de téléphone
+        // Sélection du type de téléphone avec RadioButtons
         Text(
             text = stringResource(R.string.screen_detail_phonetype_subtitle),
             style = MaterialTheme.typography.bodyMedium,
@@ -146,6 +157,7 @@ fun ScreenContactEditor(
         )
 
         Column {
+            // Itère sur tous les types de téléphone disponibles
             PhoneType.entries.forEach { type ->
                 Row(
                     Modifier
@@ -175,7 +187,7 @@ fun ScreenContactEditor(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Champ Phone Number
+        // Champ Phone Number (optionnel, clavier téléphone)
         OutlinedTextField(
             value = phoneNumber,
             onValueChange = { phoneNumber = it },
@@ -187,12 +199,12 @@ fun ScreenContactEditor(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Boutons d'action
+        // Boutons d'action (Cancel, Delete si édition, Save/Create)
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            // Bouton Cancel
+            // Bouton Cancel - annule l'édition
             OutlinedButton(
                 onClick = onCancel,
                 modifier = Modifier.weight(1f)
@@ -202,7 +214,7 @@ fun ScreenContactEditor(
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            // Bouton Delete (seulement pour édition)
+            // Bouton Delete - uniquement visible en mode édition
             if (!isNewContact) {
                 OutlinedButton(
                     onClick = { contact?.let { onDelete(it) } },
@@ -217,9 +229,10 @@ fun ScreenContactEditor(
                 Spacer(modifier = Modifier.width(8.dp))
             }
 
-            // Bouton Save/Create
+            // Bouton Save/Create - désactivé si nom vide
             Button(
                 onClick = {
+                    // Construit le contact avec toutes les données
                     val updatedContact = Contact(
                         id = contact?.id,
                         remoteId = contact?.remoteId,

@@ -5,20 +5,27 @@ import retrofit2.Response
 import retrofit2.http.*
 
 /**
- * Interface Retrofit pour l'API REST
+ * Interface Retrofit définissant l'API REST pour la gestion des contacts
+ *
+ * @author Piemontesi Gwendal
+ * @author Trueb Guillaume
+ * @author Kunzli Christophe
  */
 interface ContactsApiService {
 
     /**
-     * Enrollment - Créer un nouvel utilisateur et obtenir un UUID
-     * GET /enroll
+     * Enrollment - Créer un nouvel utilisateur et obtenir un UUID.
+     *
+     * @return Response<String> - UUID au format texte brut
      */
     @GET("enroll")
     suspend fun enroll(): Response<String>
 
     /**
-     * Récupérer tous les contacts
-     * GET /contacts
+     * Récupérer tous les contacts de l'utilisateur.
+     *
+     * @param uuid String - UUID utilisateur (header X-UUID)
+     * @return Response<List<ContactDTO>> - Liste des contacts au format JSON
      */
     @GET("contacts")
     suspend fun getAllContacts(
@@ -26,8 +33,11 @@ interface ContactsApiService {
     ): Response<List<ContactDTO>>
 
     /**
-     * Obtenir un contact spécifique
-     * GET /contacts/{id}
+     * Obtenir un contact spécifique par son ID serveur.
+     *
+     * @param uuid String - UUID utilisateur (header X-UUID)
+     * @param id Long - ID du contact sur le serveur
+     * @return Response<ContactDTO> - Contact demandé ou erreur 404 si non trouvé
      */
     @GET("contacts/{id}")
     suspend fun getContactById(
@@ -36,8 +46,11 @@ interface ContactsApiService {
     ): Response<ContactDTO>
 
     /**
-     * Créer un nouveau contact
-     * POST /contacts
+     * Créer un nouveau contact sur le serveur.
+     *
+     * @param uuid String - UUID utilisateur (header X-UUID)
+     * @param contact ContactDTO - Contact à créer (avec id = null)
+     * @return Response<ContactDTO> - Contact créé avec l'ID généré (201 CREATED)
      */
     @POST("contacts")
     suspend fun createContact(
@@ -46,8 +59,12 @@ interface ContactsApiService {
     ): Response<ContactDTO>
 
     /**
-     * Modifier un contact existant
-     * PUT /contacts/{id}
+     * Modifier un contact existant sur le serveur.
+     *
+     * @param uuid String - UUID utilisateur (header X-UUID)
+     * @param id Long - ID du contact à modifier
+     * @param contact ContactDTO - Nouvelles données du contact
+     * @return Response<ContactDTO> - Contact modifié (200 OK)
      */
     @PUT("contacts/{id}")
     suspend fun updateContact(
@@ -57,8 +74,11 @@ interface ContactsApiService {
     ): Response<ContactDTO>
 
     /**
-     * Supprimer un contact
-     * DELETE /contacts/{id}
+     * Supprimer un contact du serveur.
+     *
+     * @param uuid String - UUID utilisateur (header X-UUID)
+     * @param id Long - ID du contact à supprimer
+     * @return Response<Unit> - Réponse vide (200 OK) ou erreur
      */
     @DELETE("contacts/{id}")
     suspend fun deleteContact(

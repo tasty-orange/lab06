@@ -5,7 +5,12 @@ import android.content.SharedPreferences
 
 /**
  * Gestionnaire pour stocker et récupérer l'UUID utilisateur
- * Utilise SharedPreferences pour la persistance
+ *
+ * @author Piemontesi Gwendal
+ * @author Trueb Guillaume
+ * @author Kunzli Christophe
+ *
+ * @param context Context - Contexte Android pour accéder aux SharedPreferences
  */
 class UuidManager(context: Context) {
 
@@ -17,29 +22,34 @@ class UuidManager(context: Context) {
     }
 
     /**
-     * Sauvegarde l'UUID utilisateur
+     * Sauvegarde l'UUID utilisateur dans SharedPreferences.
+     *
+     * @param uuid String - UUID attribué par le serveur lors de l'enrollment
      */
     fun saveUuid(uuid: String) {
         prefs.edit().putString(KEY_UUID, uuid).apply()
     }
 
     /**
-     * Récupère l'UUID utilisateur
-     * @return UUID ou null si non défini
+     * Récupère l'UUID utilisateur depuis SharedPreferences.
+     *
+     * @return String? - UUID stocké ou null si aucun UUID n'est enregistré
      */
     fun getUuid(): String? {
         return prefs.getString(KEY_UUID, null)
     }
 
     /**
-     * Supprime l'UUID (pour un nouvel enrollment)
+     * Supprime l'UUID des SharedPreferences.
      */
     fun clearUuid() {
         prefs.edit().remove(KEY_UUID).apply()
     }
 
     /**
-     * Vérifie si un UUID est enregistré
+     * Vérifie si un UUID est actuellement enregistré.
+     *
+     * @return Boolean - true si un UUID existe, false sinon
      */
     fun hasUuid(): Boolean {
         return getUuid() != null

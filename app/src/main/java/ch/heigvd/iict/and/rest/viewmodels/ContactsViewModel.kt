@@ -9,35 +9,54 @@ import ch.heigvd.iict.and.rest.models.Contact
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
+/**
+ * ViewModel pour la gestion des contacts et de l'état de l'interface
+ *
+ * @author Piemontesi Gwendal
+ * @author Trueb Guillaume
+ * @author Kunzli Christophe
+ *
+ * @param app Application - Instance de l'application pour accéder au Repository
+ */
 class ContactsViewModel(app: Application) : AndroidViewModel(app) {
 
     private val repository = (application as ContactsApplication).repository
 
-    // Liste de tous les contacts (Flow automatiquement mis à jour)
+    /**
+     * Liste de tous les contacts, mise à jour automatiquement.
+     */
     val allContacts: StateFlow<List<Contact>> = repository.allContacts.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000L),
         initialValue = emptyList()
     )
 
-    // Contact sélectionné pour édition (null = création d'un nouveau)
+    /**
+     * Contact actuellement sélectionné pour édition.
+     */
     private val _selectedContact = MutableStateFlow<Contact?>(null)
     val selectedContact: StateFlow<Contact?> = _selectedContact.asStateFlow()
 
-    // Mode édition (true = formulaire, false = liste)
+    /**
+     * Mode édition de l'interface.
+     */
     private val _isEditing = MutableStateFlow(false)
     val isEditing: StateFlow<Boolean> = _isEditing.asStateFlow()
 
-    // Messages de statut à afficher
+    /**
+     * Message de statut à afficher temporairement.
+     */
     private val _statusMessage = MutableStateFlow<String?>(null)
     val statusMessage: StateFlow<String?> = _statusMessage.asStateFlow()
 
-    // Indicateur de chargement
+    /**
+     * Indicateur de chargement pour les opérations asynchrones.
+     */
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
     /**
-     * ENROLLMENT : Créer un nouvel utilisateur
+     * Lance l'enrollment utilisateur.
      */
     fun enroll() {
         viewModelScope.launch {
@@ -53,14 +72,13 @@ class ContactsViewModel(app: Application) : AndroidViewModel(app) {
                 "Erreur lors de l'enrollment"
             }
 
-            // Effacer le message après 3 secondes
             kotlinx.coroutines.delay(3000)
             _statusMessage.value = null
         }
     }
 
     /**
-     * SYNCHRONISATION complète
+     * Lance la synchronisation complète de tous les contacts "dirty".
      */
     fun refresh() {
         viewModelScope.launch {
@@ -76,14 +94,13 @@ class ContactsViewModel(app: Application) : AndroidViewModel(app) {
                 "Erreur lors de la synchronisation"
             }
 
-            // Effacer le message après 3 secondes
             kotlinx.coroutines.delay(3000)
             _statusMessage.value = null
         }
     }
 
     /**
-     * Ouvrir l'écran de CRÉATION d'un nouveau contact
+     * Prépare l'interface pour créer un nouveau contact.
      */
     fun createNewContact() {
         _selectedContact.value = null
@@ -91,7 +108,9 @@ class ContactsViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     /**
-     * Ouvrir l'écran d'ÉDITION d'un contact existant
+     * Prépare l'interface pour éditer un contact existant.
+     *
+     * @param contact Contact à éditer
      */
     fun editContact(contact: Contact) {
         _selectedContact.value = contact
@@ -99,7 +118,9 @@ class ContactsViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     /**
-     * SAUVEGARDER un contact (création ou mise à jour)
+     * Sauvegarde un contact (création ou modification).
+     *
+     * @param contact Contact à sauvegarder
      */
     fun saveContact(contact: Contact) {
         viewModelScope.launch {
@@ -123,14 +144,15 @@ class ContactsViewModel(app: Application) : AndroidViewModel(app) {
                 _statusMessage.value = "Erreur lors de la sauvegarde"
             }
 
-            // Effacer le message après 3 secondes
             kotlinx.coroutines.delay(3000)
             _statusMessage.value = null
         }
     }
 
     /**
-     * SUPPRIMER un contact
+     * Supprime un contact.
+     *
+     * @param contact Contact à supprimer
      */
     fun deleteContact(contact: Contact) {
         viewModelScope.launch {
@@ -148,14 +170,13 @@ class ContactsViewModel(app: Application) : AndroidViewModel(app) {
                 _statusMessage.value = "Erreur lors de la suppression"
             }
 
-            // Effacer le message après 3 secondes
             kotlinx.coroutines.delay(3000)
             _statusMessage.value = null
         }
     }
 
     /**
-     * ANNULER l'édition et retourner à la liste
+     * Annule l'édition en cours et retourne à la liste.
      */
     fun cancelEditing() {
         _isEditing.value = false
@@ -163,7 +184,7 @@ class ContactsViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     /**
-     * Effacer le message de statut
+     * Efface manuellement le message de statut.
      */
     fun clearStatusMessage() {
         _statusMessage.value = null

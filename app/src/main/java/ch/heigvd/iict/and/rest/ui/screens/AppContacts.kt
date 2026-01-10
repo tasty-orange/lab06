@@ -13,20 +13,27 @@ import ch.heigvd.iict.and.rest.R
 import ch.heigvd.iict.and.rest.models.Contact
 import ch.heigvd.iict.and.rest.viewmodels.ContactsViewModel
 
+/**
+ * Composable principal de l'application de gestion de contacts
+ *
+ * @author Piemontesi Gwendal
+ * @author Trueb Guillaume
+ * @author Kunzli Christophe
+ *
+ * @param contactsViewModel ContactsViewModel - ViewModel partagé (créé automatiquement)
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppContact(contactsViewModel: ContactsViewModel = viewModel()) {
-    // Observer les états du ViewModel
+
     val contacts: List<Contact> by contactsViewModel.allContacts.collectAsStateWithLifecycle()
     val isEditing: Boolean by contactsViewModel.isEditing.collectAsStateWithLifecycle()
     val selectedContact: Contact? by contactsViewModel.selectedContact.collectAsStateWithLifecycle()
     val statusMessage: String? by contactsViewModel.statusMessage.collectAsStateWithLifecycle()
     val isLoading: Boolean by contactsViewModel.isLoading.collectAsStateWithLifecycle()
 
-    // Snackbar pour les messages de statut
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // Afficher le message de statut dans un Snackbar
     LaunchedEffect(statusMessage) {
         statusMessage?.let {
             snackbarHostState.showSnackbar(
@@ -42,7 +49,7 @@ fun AppContact(contactsViewModel: ContactsViewModel = viewModel()) {
             TopAppBar(
                 title = { Text(text = stringResource(R.string.app_name)) },
                 actions = {
-                    // Bouton Enroll (Populate)
+                    // Bouton Populate (Enroll)
                     IconButton(onClick = {
                         contactsViewModel.enroll()
                     }) {
@@ -65,7 +72,6 @@ fun AppContact(contactsViewModel: ContactsViewModel = viewModel()) {
         },
         floatingActionButtonPosition = FabPosition.End,
         floatingActionButton = {
-            // FloatingActionButton visible uniquement en mode liste
             if (!isEditing) {
                 FloatingActionButton(onClick = {
                     contactsViewModel.createNewContact()
@@ -84,8 +90,9 @@ fun AppContact(contactsViewModel: ContactsViewModel = viewModel()) {
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            // Afficher soit l'écran d'édition, soit la liste
+            // Affichage conditionnel selon le mode (liste ou édition)
             if (isEditing) {
+                // Mode édition : affiche le formulaire
                 ScreenContactEditor(
                     contact = selectedContact,
                     onSave = { contact ->
@@ -99,12 +106,13 @@ fun AppContact(contactsViewModel: ContactsViewModel = viewModel()) {
                     }
                 )
             } else {
+                // Mode liste : affiche tous les contacts
                 ScreenContactList(contacts) { selectedContact ->
                     contactsViewModel.editContact(selectedContact)
                 }
             }
 
-            // Indicateur de chargement par-dessus
+            // Indicateur de chargement par-dessus l'écran actuel
             if (isLoading) {
                 Box(
                     modifier = Modifier.fillMaxSize(),

@@ -11,6 +11,17 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 
+/**
+ * Repository pour la gestion des contacts et leur synchronisation
+ *
+ * @author Piemontesi Gwendal
+ * @author Trueb Guillaume
+ * @author Kunzli Christophe
+ *
+ * @param contactsDao DAO pour accéder à la base de données Room
+ * @param apiService Service Retrofit pour les appels REST
+ * @param uuidManager Gestionnaire de l'UUID utilisateur
+ */
 class ContactsRepository(
     private val contactsDao: ContactsDao,
     private val apiService: ContactsApiService,
@@ -21,10 +32,15 @@ class ContactsRepository(
         private const val TAG = "ContactsRepository"
     }
 
+    /**
+     * Flow observable de tous les contacts non supprimés.
+     */
     val allContacts: Flow<List<Contact>> = contactsDao.getAllContacts()
 
     /**
-     * ENROLLMENT : Créer un nouvel utilisateur, obtenir UUID et synchroniser
+     * Enrollment : Crée un nouvel utilisateur et récupère les contacts par défaut.
+     *
+     * @return Boolean - true si l'enrollment a réussi, false sinon
      */
     suspend fun enroll(): Boolean = withContext(Dispatchers.IO) {
         try {
@@ -72,7 +88,10 @@ class ContactsRepository(
     }
 
     /**
-     * CRÉER un nouveau contact
+     * Crée un nouveau contact avec politique "best-effort".
+     *
+     * @param contact Contact à créer
+     * @return Boolean - true si création locale réussie, false en cas d'erreur DB
      */
     suspend fun createContact(contact: Contact): Boolean = withContext(Dispatchers.IO) {
         try {
@@ -107,19 +126,18 @@ class ContactsRepository(
             } else {
                 Log.w(TAG, "No UUID - contact created locally only")
             }
-
-            // ✅ Toujours retourner true si la création locale a réussi
             true
-
         } catch (e: Exception) {
-            // Seules les erreurs de base de données sont critiques
             Log.e(TAG, "Failed to create contact locally", e)
             false
         }
     }
 
     /**
-     * METTRE À JOUR un contact existant
+     * Met à jour un contact existant avec politique "best-effort".
+     *
+     * @param contact Contact à mettre à jour
+     * @return Boolean - true si mise à jour locale réussie, false en cas d'erreur DB
      */
     suspend fun updateContact(contact: Contact): Boolean = withContext(Dispatchers.IO) {
         try {
@@ -148,10 +166,7 @@ class ContactsRepository(
             } else {
                 Log.w(TAG, "No UUID or remoteId - contact updated locally only")
             }
-
-            // ✅ Toujours retourner true si la mise à jour locale a réussi
             true
-
         } catch (e: Exception) {
             Log.e(TAG, "Failed to update contact locally", e)
             false
@@ -159,7 +174,10 @@ class ContactsRepository(
     }
 
     /**
-     * SUPPRIMER un contact
+     * Supprime un contact avec politique "best-effort".
+     *
+     * @param contact Contact à supprimer
+     * @return Boolean - true si opération locale réussie, false en cas d'erreur DB
      */
     suspend fun deleteContact(contact: Contact): Boolean = withContext(Dispatchers.IO) {
         try {
@@ -188,10 +206,7 @@ class ContactsRepository(
                 contactsDao.hardDelete(contact.id!!)
                 Log.d(TAG, "Contact deleted locally (no server sync needed)")
             }
-
-            // ✅ Toujours retourner true si l'opération locale a réussi
             true
-
         } catch (e: Exception) {
             Log.e(TAG, "Failed to delete contact locally", e)
             false
@@ -199,7 +214,9 @@ class ContactsRepository(
     }
 
     /**
-     * SYNCHRONISATION COMPLÈTE de tous les contacts
+     * Synchronisation complète de tous les contacts "dirty".
+     *
+     * @return Boolean - true si aucun échec, false si au moins un échec
      */
     suspend fun syncAll(): Boolean = withContext(Dispatchers.IO) {
         try {
